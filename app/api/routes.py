@@ -1,3 +1,18 @@
+""""  Module 1 — Input Handler
+
+    Accepts a user instruction and optional file paths, validates them,
+    and returns a structured payload ready for the LLM Planner.
+
+    Example prompt: "Clean data.csv and generate summary, pls check thoroughly..."
+    this module validates the request, and converts the prompt into a structured format like:
+    {
+        "instruction": "Clean data.csv and generate summary, pls check thoroughly...",
+        "files": ["data.csv"]
+    }
+    
+    """
+
+
 import os
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
@@ -29,12 +44,6 @@ class WorkflowResponse(BaseModel):
 
 @router.post("/run-workflow", response_model=WorkflowResponse)
 def run_workflow(payload: WorkflowRequest) -> WorkflowResponse:
-    """
-    Module 1 — Input Handler
-
-    Accepts a user instruction and optional file paths, validates them,
-    and returns a structured payload ready for the LLM Planner.
-    """
     files = payload.files or []
 
     # Validate file existence
