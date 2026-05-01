@@ -1,4 +1,4 @@
-""""  Module 1 — Input Handler
+""""  Module 1 — Input Handler -API +VALIDATION LAYER
 
     Accepts a user instruction and optional file paths, validates them,
     and returns a structured payload ready for the LLM Planner.
@@ -27,6 +27,7 @@ class WorkflowRequest(BaseModel):
     instruction: str
     files: Optional[list[str]] = Field(default_factory=list)
 
+    #runs automatically when req is received, checks if instruction is empty and raises error if it is
     @field_validator("instruction")
     @classmethod
     def instruction_must_not_be_empty(cls, v: str) -> str:
@@ -35,6 +36,7 @@ class WorkflowRequest(BaseModel):
         return v.strip()
 
 
+#defines response model
 class WorkflowResponse(BaseModel):
     instruction: str
     files: list[str]
@@ -43,7 +45,7 @@ class WorkflowResponse(BaseModel):
 # --- Endpoint ---
 
 @router.post("/run-workflow", response_model=WorkflowResponse)
-def run_workflow(payload: WorkflowRequest) -> WorkflowResponse:
+def run_workflow(payload: WorkflowRequest) -> WorkflowResponse: #takes in the request body and validates it against the WorkflowRequest model, then processes it and returns a WorkflowResponse
     files = payload.files or []
 
     # Validate file existence

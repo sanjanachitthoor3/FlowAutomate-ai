@@ -102,6 +102,8 @@ def _fix_missing_file(step: dict, last_known_file: str | None) -> dict:
 # Public interface
 # ---------------------------------------------------------------------------
 
+
+## ENTRY POINT OF THIS MODULE
 def validate_and_fix_plan(plan: list) -> list:
     """
     Validate and auto-correct a workflow plan produced by the LLM Planner.
