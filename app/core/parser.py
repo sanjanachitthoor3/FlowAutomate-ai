@@ -3,6 +3,25 @@ from typing import Any
 
 logger = logging.getLogger(__name__)
 
+#----------------------------------------------------------------------------
+# ARGUMENT MAPPING
+#----------------------------------------------------------------------------
+ARG_MAPPING = {
+    "generate_summary": {
+        "input_file": "file",
+        "file_path": "file",
+    },
+    "clean_data": {
+        "input_file": "file",
+        "file_path": "file",
+    },
+    "rename_files": {
+        "input_file": "file",
+        "file_path": "file",
+        "output_file": "new_name",
+        "output_name": "new_name",
+    }
+}
 # ---------------------------------------------------------------------------
 # Configuration
 # ---------------------------------------------------------------------------
@@ -114,7 +133,8 @@ def validate_and_fix_plan(plan: list) -> list:
       3. Skip steps whose 'tool' is not in ALLOWED_TOOLS.
       4. If a valid step is missing a required 'file' arg, inherit the
          file path from the most recent step that provided one.
-      5. Renumber 'step' sequentially so the output index is always
+      5. Enforce tool dependency order: clean_data must precede generate_summary.
+      6. Renumber 'step' sequentially so the output index is always
          contiguous (1, 2, 3 …) regardless of what the LLM emitted.
 
     Args:
@@ -152,11 +172,41 @@ def validate_and_fix_plan(plan: list) -> list:
         # --- Fix: propagate 'file' if missing ---
         step = _fix_missing_file(step, last_known_file)
 
+        
+        #NORMALIZE ARG NAMES (ARG MAPPING)
+        tool = step["tool"]
+        args = step["args"]
+
+        if tool in ARG_MAPPING:
+            mapping = ARG_MAPPING[tool]
+
+            for old_key, new_key in mapping.items():
+                if old_key in args and new_key not in args:
+                    args[new_key] = args.pop(old_key)
+
+
+
         # Update the running file tracker for future steps to inherit from.
         if step["args"].get("file"):
             last_known_file = step["args"]["file"]
 
         validated.append(step)
+
+    # --- Fix: enforce dependency order (clean_data must precede generate_summary) ---
+    # Locate the index of each tool in the validated list (None if absent).
+    tools = [s["tool"] for s in validated]
+    clean_idx   = tools.index("clean_data")       if "clean_data"       in tools else None
+    summary_idx = tools.index("generate_summary") if "generate_summary" in tools else None
+
+    # Only reorder when both are present AND they are in the wrong order.
+    if clean_idx is not None and summary_idx is not None and clean_idx > summary_idx:
+        logger.warning(
+            "Dependency violation: 'generate_summary' (step %s) appears before "
+            "'clean_data' (step %s) — swapping.",
+            validated[summary_idx]["step"], validated[clean_idx]["step"],
+        )
+        # Swap the two steps in-place; all other steps remain untouched.
+        validated[clean_idx], validated[summary_idx] = validated[summary_idx], validated[clean_idx]
 
     # --- Renumber steps sequentially (1-based) ---
     # The LLM may have emitted duplicate numbers, gaps, or wrong values.

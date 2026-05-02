@@ -30,6 +30,7 @@ router = APIRouter()
 class WorkflowRequest(BaseModel):
     instruction: str
     files: Optional[list[str]] = Field(default_factory=list)
+    preview: bool = False
 
     #runs automatically when req is received, checks if instruction is empty and raises error if it is
     @field_validator("instruction")
@@ -62,9 +63,20 @@ def run_workflow(payload: WorkflowRequest):
 
     plan = generate_plan(payload.instruction, files)
     validated_plan = validate_and_fix_plan(plan)
+
+    # --- Preview mode ---
+    if payload.preview:
+        return {
+            "mode": "preview",
+            "plan": plan,
+            "validated_plan": validated_plan
+        }
+
+    # --- Execute mode ---
     result = execute_plan(validated_plan)
 
-    return{
+    return {
+        "mode": "execute",
         "plan": plan,
         "validated_plan": validated_plan,
         "result": result
