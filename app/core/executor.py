@@ -1,46 +1,11 @@
 import logging
 from typing import Any, Callable
+from app.tools.clean_data import clean_data
+from app.tools.rename_files import rename_files
+from app.tools.generate_summary import generate_summary
+from app.tools.registry import TOOL_REGISTRY
 
 logger = logging.getLogger(__name__)
-
-# ---------------------------------------------------------------------------
-# Tool implementations  (stub logic — replace with real business logic)
-# ---------------------------------------------------------------------------
-
-def clean_data(file: str, **kwargs) -> dict:
-    """Remove nulls, strip whitespace, deduplicate rows in a CSV file."""
-    # TODO: replace with actual pandas / polars cleaning logic
-    logger.debug("clean_data called on %r", file)
-    return {"cleaned_file": file, "rows_removed": 0, "status": "cleaned"}
-
-
-def rename_files(file: str, new_name: str = "", **kwargs) -> dict:
-    """Rename a file on disk."""
-    # TODO: replace with os.rename / pathlib logic
-    logger.debug("rename_files called: %r -> %r", file, new_name)
-    target = new_name or file.replace(".", "_renamed.")
-    return {"original": file, "renamed_to": target, "status": "renamed"}
-
-
-def generate_summary(file: str, **kwargs) -> dict:
-    """Produce a statistical / textual summary of a data file."""
-    # TODO: replace with real summarisation logic
-    logger.debug("generate_summary called on %r", file)
-    return {"file": file, "rows": 0, "columns": 0, "summary": "stub summary"}
-
-
-# ---------------------------------------------------------------------------
-# Tool registry
-# ---------------------------------------------------------------------------
-
-# Single source of truth: maps every allowed tool name to its callable.
-# Adding a new tool = one line here + the function above.
-TOOL_REGISTRY: dict[str, Callable] = {
-    "clean_data":       clean_data,
-    "rename_files":     rename_files,
-    "generate_summary": generate_summary,
-}
-
 
 # ---------------------------------------------------------------------------
 # Internal helpers
@@ -72,7 +37,12 @@ def _merge_state(args: dict, state: dict) -> dict:
     automatically into step N+1 without the plan author having to wire
     them manually.
     """
-    merged = {**state, **args}   # args override state for clashing keys
+    merged = dict(args)
+
+    # Override file ONLY if it exists in state
+    if "file" in state:
+        merged["file"] = state["file"]
+        
     return merged
 
 

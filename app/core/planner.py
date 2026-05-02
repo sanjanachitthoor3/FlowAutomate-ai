@@ -44,7 +44,12 @@ def _build_prompt(instruction: str, files: list[str]) -> str:
         f"2. Each element in the array is a step object with exactly these keys:\n"
         f'   {{ "step": <int>, "tool": "<tool_name>", "args": {{<key>: <value>}} }}\n'
         f"3. You may ONLY use these tools: {', '.join(ALLOWED_TOOLS)}.\n"
-        f"4. Never invent tools outside the allowed list.\n\n"
+        f"4. Never invent tools outside the allowed list.\n"
+        f"5. You MUST use EXACT argument names for each tool:\n"
+        f"   - clean_data → {{\"file\": \"...\"}}\n"
+        f"   - generate_summary → {{\"file\": \"...\"}}\n"
+        f"   - rename_files → {{\"file\": \"...\", \"new_name\": \"...\"}}\n"
+        f"6. Do NOT use keys like input_file, output_file, filename, etc.\n\n"
         f"Available files: {files_context}\n"
         f"Instruction: {instruction}\n\n"
         f"Respond with the JSON plan now:"
