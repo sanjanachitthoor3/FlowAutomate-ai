@@ -18,8 +18,9 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional
 from app.core.planner import generate_plan
-from app.core.parser import validate_and_fix_plan
+from app.core.parser import validate_and_fix_plan, _generate_explanations
 from app.core.executor import execute_plan
+
 
 
 router = APIRouter()
@@ -63,13 +64,15 @@ def run_workflow(payload: WorkflowRequest):
 
     plan = generate_plan(payload.instruction, files)
     validated_plan = validate_and_fix_plan(plan)
+    explanations = _generate_explanations(validated_plan)
 
     # --- Preview mode ---
     if payload.preview:
         return {
             "mode": "preview",
             "plan": plan,
-            "validated_plan": validated_plan
+            "validated_plan": validated_plan,
+            "explanations": explanations
         }
 
     # --- Execute mode ---
@@ -79,5 +82,6 @@ def run_workflow(payload: WorkflowRequest):
         "mode": "execute",
         "plan": plan,
         "validated_plan": validated_plan,
+        "explanations": explanations,
         "result": result
     }

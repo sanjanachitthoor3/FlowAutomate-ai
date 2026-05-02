@@ -219,3 +219,29 @@ def validate_and_fix_plan(plan: list) -> list:
     )
 
     return validated
+
+## EXPLANATION FEATURE FUNCTION:
+def _generate_explanations(plan: list[dict]) -> list[str]:
+    """
+    Generate simple explanations for each step in the workflow.
+    """
+
+    explanations = []
+
+    TOOL_EXPLANATIONS = {
+        "clean_data": "Cleans the dataset by removing noise, missing values, and duplicates.",
+        "generate_summary": "Generates statistical summary of the dataset.",
+        "rename_files": "Renames the output file for better organization.",
+    }
+
+    for step in plan:
+        tool = step.get("tool")
+
+        explanation = TOOL_EXPLANATIONS.get(
+            tool,
+            f"Executes tool '{tool}' as part of the workflow."
+        )
+
+        explanations.append(f"Step {step['step']}: {explanation}")
+
+    return explanations
