@@ -43,12 +43,22 @@ def rename_files(file: str, new_name: str) -> dict:
     # might have included (e.g. "subdir/summary.csv" → "summary.csv").
     destination = source.parent / Path(bare_name).name
 
-    # --- Guard: do not silently clobber an existing file ---
+    # --- Handle overwrite by auto-renaming ---
     if destination.exists():
-        raise FileExistsError(
-            f"A file named {str(destination)!r} already exists. "
-            "Delete or move it before renaming."
-        )
+        base = destination.stem
+        suffix = destination.suffix
+        parent = destination.parent
+
+        counter = 1
+        while True:
+            new_name = f"{base}_{counter}{suffix}"
+            new_destination = parent / new_name
+
+            if not new_destination.exists():
+                destination = new_destination
+                break
+
+            counter += 1
 
     # --- Rename ---
     # Path.rename() is atomic on POSIX systems when src and dst are on the
