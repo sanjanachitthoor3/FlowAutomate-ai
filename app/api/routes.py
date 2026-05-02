@@ -17,6 +17,10 @@ import os
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field, field_validator
 from typing import Optional
+from app.core.planner import generate_plan
+from app.core.parser import validate_and_fix_plan
+from app.core.executor import execute_plan
+
 
 router = APIRouter()
 
@@ -44,8 +48,8 @@ class WorkflowResponse(BaseModel):
 
 # --- Endpoint ---
 
-@router.post("/run-workflow", response_model=WorkflowResponse)
-def run_workflow(payload: WorkflowRequest) -> WorkflowResponse: #takes in the request body and validates it against the WorkflowRequest model, then processes it and returns a WorkflowResponse
+@router.post("/run-workflow")
+def run_workflow(payload: WorkflowRequest): 
     files = payload.files or []
 
     # Validate file existence
@@ -56,7 +60,12 @@ def run_workflow(payload: WorkflowRequest) -> WorkflowResponse: #takes in the re
             detail=f"File(s) not found: {', '.join(missing)}"
         )
 
-    return WorkflowResponse(
-        instruction=payload.instruction,
-        files=files,
-    )
+    plan = generate_plan(payload.instruction, files)
+    validated_plan = validate_and_fix_plan(plan)
+    result = execute_plan(validated_plan)
+
+    return{
+        "plan": plan,
+        "validated_plan": validated_plan,
+        "result": result
+    }

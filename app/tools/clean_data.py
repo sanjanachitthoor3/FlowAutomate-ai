@@ -40,17 +40,19 @@ def clean_data(file: str) -> dict:
 
     logger.debug("Loaded %d rows × %d columns from %r", len(df), len(df.columns), file)
 
-    # --- Step 1: drop rows that have any null value ---
-    df = df.dropna()
 
-    # --- Step 2: remove fully duplicate rows, keep the first occurrence ---
-    df = df.drop_duplicates()
-
-    # --- Step 3: strip whitespace from all string (object-dtype) columns ---
-    # select_dtypes limits the operation to text columns so numeric columns
-    # are never accidentally cast to strings.
+##----------------CLEANING STEPS----------------##
+    # --- Step 1: strip whitespace FIRST ---
     str_cols = df.select_dtypes(include="object").columns
     df[str_cols] = df[str_cols].apply(lambda col: col.str.strip())
+
+    # --- Step 2: drop rows that are mostly empty (generic approach) ---
+    df = df.dropna(thresh=max(1, int(0.7 * len(df.columns))))
+
+    # --- Step 3: remove duplicates AFTER cleaning ---
+    df = df.drop_duplicates()
+##-----------------------------------------------
+
 
     logger.debug("After cleaning: %d rows × %d columns", len(df), len(df.columns))
 

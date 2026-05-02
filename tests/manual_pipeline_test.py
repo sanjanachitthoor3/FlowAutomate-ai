@@ -23,8 +23,16 @@ def pretty(title, data):
 # files = ["data/sample_mixed.csv"]
 
 ##TEST 3:
-prompt = "Summarize the data in data/sample_clean.csv and rename it to clean_summary.csv"
-files = ["data/sample_clean.csv"]
+# prompt = "Summarize the data in data/sample_clean.csv and rename it to clean_summary.csv"
+# files = ["data/sample_clean.csv"]
+
+##TEST 4: USED IN FASTAPI DOCS
+# whitespace (" Alice ")
+# duplicates (Alice twice)
+# missing value (price empty)
+# text column (notes)
+prompt = "Clean the sales data in data/sales_data.csv, generate a summary, and rename it to final_sales_summary.csv"
+files = ["data/sales_data.csv"]
 
 print("\n========== INPUT ==========")
 print(f"Instruction: {prompt}")
