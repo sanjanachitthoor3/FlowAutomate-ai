@@ -7,6 +7,7 @@ logger = logging.getLogger(__name__)
 
 
 def clean_data(file: str) -> dict:
+    # raise Exception("Forced failure for testing")
     """
     Read a CSV file, apply basic cleaning operations, and save the result.
 

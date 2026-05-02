@@ -32,6 +32,8 @@ class WorkflowRequest(BaseModel):
     instruction: str
     files: Optional[list[str]] = Field(default_factory=list)
     preview: bool = False
+    error_mode: str = "fail"  # "fail" (default): stop on first error
+                              # "skip": log error and continue with next steps      
 
     #runs automatically when req is received, checks if instruction is empty and raises error if it is
     @field_validator("instruction")
@@ -76,7 +78,7 @@ def run_workflow(payload: WorkflowRequest):
         }
 
     # --- Execute mode ---
-    result = execute_plan(validated_plan)
+    result = execute_plan(validated_plan, payload.error_mode)
 
     return {
         "mode": "execute",
