@@ -1,0 +1,6 @@
+customer,product,price,quantity,notes
+ Alice ,Laptop,50000,1, urgent 
+Bob,Phone,20000,2,
+Charlie,Tablet,,1, delayed
+Alice ,Laptop,50000,1, urgent 
+David,Headphones,3000,3, ok
