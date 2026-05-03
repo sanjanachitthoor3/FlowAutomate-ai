@@ -1,5 +1,5 @@
 function WorkflowContent({ data }) {
-  const plan         = data?.plan         ?? [];
+  const plan         = data?.plan ?? [];
   const explanations = data?.explanations ?? [];
   const status       = data?.result?.status;
   const isSuccess    = status === "success";
@@ -13,8 +13,10 @@ function WorkflowContent({ data }) {
           <ol className="flex flex-col gap-1">
             {plan.map((step, i) => (
               <li key={i} className="flex items-center gap-2 text-white/80">
-                <span className="flex-none w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold text-indigo-300"
-                  style={{ background: "rgba(99,102,241,0.15)" }}>
+                <span
+                  className="flex-none w-5 h-5 rounded-md flex items-center justify-center text-[10px] font-bold text-indigo-300"
+                  style={{ background: "rgba(99,102,241,0.15)" }}
+                >
                   {i + 1}
                 </span>
                 <span className="font-mono text-xs text-indigo-300">{step.tool}</span>
@@ -40,21 +42,44 @@ function WorkflowContent({ data }) {
 
       {status && (
         <div>
-          <p className="text-[10px] font-semibold uppercase tracking-widest text-white/30 mb-1.5">Result</p>
-          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
-            isSuccess
-              ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25"
-              : "bg-red-500/15 text-red-400 border border-red-500/25"
-          }`}>
-            <span className={`w-1.5 h-1.5 rounded-full ${isSuccess ? "bg-emerald-400" : "bg-red-400"}`} />
+          <p className="text-[10px] font-semibold uppercase tracking-widest text-white/30 mb-1.5">
+            Result
+          </p>
+
+          <span
+            className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ${
+              isSuccess
+                ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/25"
+                : "bg-red-500/15 text-red-400 border border-red-500/25"
+            }`}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full ${
+                isSuccess ? "bg-emerald-400" : "bg-red-400"
+              }`}
+            />
             {status}
           </span>
+
+          {/* ✅ OUTPUT FILES */}
+          {data.result?.results?.map((r, i) => (
+            <div key={i} className="text-xs text-white/50 mt-2">
+              Output:{" "}
+              <a
+                href={`${import.meta.env.VITE_API_URL}/download/${r.file.split("/").pop()}`}
+                target="_blank"
+                className="text-indigo-400 hover:underline"
+              >
+                {r.file.split("/").pop()}
+              </a>
+            </div>
+          ))}
         </div>
       )}
+
     </div>
   );
 }
-
 
 function WorkflowPreviewContent({ data, onApprove, onCancel, errorMode, setErrorMode }) {
   const plan         = data?.plan         ?? [];
