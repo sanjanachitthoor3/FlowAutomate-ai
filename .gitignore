@@ -15,3 +15,6 @@ Thumbs.db
 
 # Data (optional)
 data/*.csv
+*.csv
+!backend/data/sample.csv
+!backend/data/sales_data.csv
