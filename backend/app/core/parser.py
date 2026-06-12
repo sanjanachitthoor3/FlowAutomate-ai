@@ -4,7 +4,7 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 #----------------------------------------------------------------------------
-# ARGUMENT MAPPING
+# ARGUMENT MAPPING to normalize names 
 #----------------------------------------------------------------------------
 ARG_MAPPING = {
     "generate_summary": {
@@ -39,7 +39,7 @@ FILE_REQUIRED_TOOLS = {"clean_data", "rename_files", "generate_summary"}
 # Internal helpers
 # ---------------------------------------------------------------------------
 
-def _is_valid_structure(step: Any) -> bool:
+def _is_valid_structure(step: Any) -> bool: #is it a dict? has all 3 keys? is args a dict?
     """
     Return True only if `step` is a dict that contains all three
     mandatory keys: 'step', 'tool', and 'args'.
@@ -60,7 +60,7 @@ def _is_valid_structure(step: Any) -> bool:
     return True
 
 
-def _is_allowed_tool(step: dict) -> bool:
+def _is_allowed_tool(step: dict) -> bool: #is the tool in the approved list?
     """
     Return True if the step's tool is in the approved list.
 
@@ -75,7 +75,7 @@ def _is_allowed_tool(step: dict) -> bool:
     return True
 
 
-def _fix_missing_file(step: dict, last_known_file: str | None) -> dict:
+def _fix_missing_file(step: dict, last_known_file: str | None) -> dict: 
     """
     If the step's tool requires a 'file' arg and none is present,
     attempt to inherit the file path from the previous valid step.
